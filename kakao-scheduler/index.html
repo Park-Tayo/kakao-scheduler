@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오톡 메시지 스케줄링</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #6ca6c1;
+            --accent-color: #98c1d9;
+            --light-color: #f0f8ff;
+            --dark-color: #293241;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --tag-welcome: #3a6ea5;
+            --tag-sales: #e07a5f;
+            --tag-event: #4d908e;
+            --bg-light: #f8f9fa;
+            --white: #fff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+        }
+        
+        /* 제목 스타일 */
+        .title-heading {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .title-heading::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 카드 스타일 */
+        .card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.2);
+        }
+        
+        /* 그리드 레이아웃 */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        /* 태그 선택 스타일 */
+        .tags-section {
+            margin-top: 20px;
+        }
+        
+        .tag-group {
+            margin-bottom: 25px;
+        }
+        
+        .tag-group-title {
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            font-weight: 500;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .tag-group-title i {
+            margin-right: 8px;
+        }
+        
+        .tag-group-welcome .tag-group-title i {
+            color: var(--tag-welcome);
+        }
+        
+        .tag-group-sales .tag-group-title i {
+            color: var(--tag-sales);
+        }
+        
+        .tag-group-event .tag-group-title i {
+            color: var(--tag-event);
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .tag-item {
+            position: relative;
+        }
+        
+        .tag-checkbox {
+            position: absolute;
+            opacity: 0;
+            height: 0;
+            width: 0;
+        }
+        
+        .tag-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: var(--white);
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        
+        .tag-checkbox:checked + .tag-label.welcome {
+            background-color: var(--tag-welcome);
+            color: white;
+            border-color: var(--tag-welcome);
+            box-shadow: 0 2px 8px rgba(58, 110, 165, 0.3);
+        }
+        
+        .tag-checkbox:checked + .tag-label.sales {
+            background-color: var(--tag-sales);
+            color: white;
+            border-color: var(--tag-sales);
+            box-shadow: 0 2px 8px rgba(224, 122, 95, 0.3);
+        }
+        
+        .tag-checkbox:checked + .tag-label.event {
+            background-color: var(--tag-event);
+            color: white;
+            border-color: var(--tag-event);
+            box-shadow: 0 2px 8px rgba(77, 144, 142, 0.3);
+        }
+        
+        .tag-label:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 선택된 태그 스타일 */
+        .selected-tags-section {
+            margin-top: 30px;
+        }
+        
+        .selected-tags-title {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            color: var(--dark-color);
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .selected-tags-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .no-tags-message {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .selected-tag-item {
+            background-color: var(--white);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .selected-tag-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: white;
+            margin-right: 15px;
+        }
+        
+        .tag-badge.welcome {
+            background-color: var(--tag-welcome);
+        }
+        
+        .tag-badge.sales {
+            background-color: var(--tag-sales);
+        }
+        
+        .tag-badge.event {
+            background-color: var(--tag-event);
+        }
+        
+        .selected-tag-name {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .date-picker {
+            display: flex;
+            align-items: center;
+        }
+        
+        .date-picker label {
+            margin-right: 10px;
+            white-space: nowrap;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        
+        .date-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.2);
+        }
+        
+        /* 버튼 스타일 */
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 4px 10px rgba(58, 110, 165, 0.2);
+        }
+        
+        .submit-btn:hover {
+            background-color: #2a5b8e;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(58, 110, 165, 0.3);
+        }
+        
+        /* 반응형 설정 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .title-heading {
+                font-size: 1.8rem;
+            }
+            
+            .selected-tag-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .selected-tag-name {
+                margin-bottom: 15px;
+            }
+            
+            .date-picker {
+                width: 100%;
+            }
+            
+            .mobile-break {
+                display: block;
+                margin-bottom: 5px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-break {
+                display: inline;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title-heading">
+            <span class="mobile-break">카카오톡 메시지</span>
+            <span class="mobile-break">스케줄링</span>
+        </h1>
+        <p class="subtitle">고객에게 보낼 카카오톡 메시지를 선택하고 발송 날짜를 설정하여 효과적인 고객 관리를 시작하세요.</p>
+        
+        <!-- 고객 정보 입력 섹션 -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-user"></i> 고객 정보</h2>
+            <div class="grid grid-cols-2">
+                <div class="form-group">
+                    <label class="form-label" for="customer-name">고객명</label>
+                    <input type="text" id="customer-name" class="form-control" placeholder="고객 이름을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="customer-phone">연락처</label>
+                    <input type="tel" id="customer-phone" class="form-control" placeholder="연락처를 입력하세요 (예: 01012345678)" required pattern="[0-9]+" inputmode="numeric">
+                </div>
+            </div>
+        </div>
+        
+        <!-- 메시지 선택 섹션 -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-comments"></i> 메시지 선택</h2>
+            <p>발송할 카카오톡 메시지를 선택하세요. 여러 메시지를 동시에 선택할 수 있습니다.</p>
+            
+            <div class="tags-section">
+                <!-- 웰컴톡 태그 그룹 -->
+                <div class="tag-group tag-group-welcome">
+                    <div class="tag-group-title">
+                        <i class="fas fa-door-open"></i> 웰컴톡
+                    </div>
+                    <div class="tags-container">
+                        <div class="tag-item">
+                            <input type="checkbox" id="welcome-1" class="tag-checkbox" data-category="welcome" data-name="웰컴톡 1">
+                            <label for="welcome-1" class="tag-label welcome">웰컴톡 1</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="welcome-2" class="tag-checkbox" data-category="welcome" data-name="웰컴톡 2">
+                            <label for="welcome-2" class="tag-label welcome">웰컴톡 2</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="welcome-3" class="tag-checkbox" data-category="welcome" data-name="웰컴톡 3">
+                            <label for="welcome-3" class="tag-label welcome">웰컴톡 3</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 세일즈톡 태그 그룹 -->
+                <div class="tag-group tag-group-sales">
+                    <div class="tag-group-title">
+                        <i class="fas fa-shopping-cart"></i> 세일즈톡
+                    </div>
+                    <div class="tags-container">
+                        <div class="tag-item">
+                            <input type="checkbox" id="sales-1" class="tag-checkbox" data-category="sales" data-name="세일즈톡 1">
+                            <label for="sales-1" class="tag-label sales">세일즈톡 1</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="sales-2" class="tag-checkbox" data-category="sales" data-name="세일즈톡 2">
+                            <label for="sales-2" class="tag-label sales">세일즈톡 2</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="sales-3" class="tag-checkbox" data-category="sales" data-name="세일즈톡 3">
+                            <label for="sales-3" class="tag-label sales">세일즈톡 3</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="sales-4" class="tag-checkbox" data-category="sales" data-name="세일즈톡 4">
+                            <label for="sales-4" class="tag-label sales">세일즈톡 4</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 이벤트톡 태그 그룹 -->
+                <div class="tag-group tag-group-event">
+                    <div class="tag-group-title">
+                        <i class="fas fa-gift"></i> 이벤트톡
+                    </div>
+                    <div class="tags-container">
+                        <div class="tag-item">
+                            <input type="checkbox" id="event-1" class="tag-checkbox" data-category="event" data-name="이벤트톡 1">
+                            <label for="event-1" class="tag-label event">이벤트톡 1</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="event-2" class="tag-checkbox" data-category="event" data-name="이벤트톡 2">
+                            <label for="event-2" class="tag-label event">이벤트톡 2</label>
+                        </div>
+                        <div class="tag-item">
+                            <input type="checkbox" id="event-3" class="tag-checkbox" data-category="event" data-name="이벤트톡 3">
+                            <label for="event-3" class="tag-label event">이벤트톡 3</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 선택된 메시지 및 날짜 설정 -->
+        <div class="card selected-tags-section">
+            <h2 class="selected-tags-title"><i class="fas fa-calendar-check"></i> 선택된 메시지 및 발송 날짜</h2>
+            
+            <div id="selected-tags-container">
+                <div class="no-tags-message">
+                    선택된 메시지가 없습니다. 위에서 발송할 메시지를 선택해주세요.
+                </div>
+            </div>
+        </div>
+        
+        <!-- 제출 버튼 -->
+        <div class="btn-container">
+            <button id="submit-btn" class="submit-btn">설정 저장하기</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 태그 체크박스 요소들 가져오기
+            const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
+            const selectedTagsContainer = document.getElementById('selected-tags-container');
+            
+            // 선택된 태그 업데이트 함수
+            function updateSelectedTags() {
+                // 현재 선택된 체크박스 가져오기
+                const selectedCheckboxes = Array.from(document.querySelectorAll('.tag-checkbox:checked'));
+                
+                // 선택된 태그가 없는 경우
+                if (selectedCheckboxes.length === 0) {
+                    selectedTagsContainer.innerHTML = `
+                        <div class="no-tags-message">
+                            선택된 메시지가 없습니다. 위에서 발송할 메시지를 선택해주세요.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 선택된 태그가 있는 경우 목록 생성
+                selectedTagsContainer.innerHTML = '';
+                
+                selectedCheckboxes.forEach(checkbox => {
+                    const category = checkbox.dataset.category;
+                    const name = checkbox.dataset.name;
+                    const id = checkbox.id;
+                    
+                    // 현재 날짜 설정 (기본값)
+                    const today = new Date();
+                    const formattedDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+                    
+                    // 태그 아이템 요소 생성
+                    const tagItem = document.createElement('div');
+                    tagItem.className = 'selected-tag-item';
+                    tagItem.innerHTML = `
+                        <div class="selected-tag-name">
+                            <span class="tag-badge ${category}">${name}</span>
+                            <span>${name}에 대한 카카오톡 메시지</span>
+                        </div>
+                        <div class="date-picker">
+                            <label for="date-${id}">발송 날짜:</label>
+                            <input type="date" id="date-${id}" class="date-input" value="${formattedDate}" min="${formattedDate}">
+                        </div>
+                    `;
+                    
+                    selectedTagsContainer.appendChild(tagItem);
+                });
+            }
+            
+            // 초기 상태 업데이트
+            updateSelectedTags();
+            
+            // 체크박스 변경 이벤트 리스너 추가
+            tagCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedTags);
+            });
+            
+            // 제출 버튼 클릭 이벤트
+            document.getElementById('submit-btn').addEventListener('click', function() {
+                const customerName = document.getElementById('customer-name').value;
+                const customerPhone = document.getElementById('customer-phone').value;
+                
+                // 유효성 검사
+                if (!customerName || !customerPhone) {
+                    alert('고객명과 연락처를 모두 입력해주세요.');
+                    return;
+                }
+                
+                const selectedCheckboxes = Array.from(document.querySelectorAll('.tag-checkbox:checked'));
+                if (selectedCheckboxes.length === 0) {
+                    alert('발송할 메시지를 하나 이상 선택해주세요.');
+                    return;
+                }
+                
+                // 데이터 수집
+                const messageData = [];
+                selectedCheckboxes.forEach(checkbox => {
+                    const id = checkbox.id;
+                    const name = checkbox.dataset.name;
+                    const category = checkbox.dataset.category;
+                    const dateInput = document.getElementById(`date-${id}`);
+                    
+                    messageData.push({
+                        messageId: id,
+                        messageName: name,
+                        category: category,
+                        scheduleDate: dateInput.value
+                    });
+                });
+                
+                // 최종 데이터 객체
+                const data = {
+                    customerName: customerName,
+                    customerPhone: customerPhone,
+                    messages: messageData
+                };
+                
+                // 데이터 확인 (개발 중에만 사용)
+                console.log('전송 데이터:', data);
+                alert('메시지 스케줄링이 설정되었습니다.');
+                
+                // 실제 웹훅으로 데이터 전송 (주석 처리됨)
+                /*
+                fetch('YOUR_WEBHOOK_URL_HERE', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('메시지 스케줄링이 성공적으로 설정되었습니다.');
+                        // 폼 초기화
+                        document.getElementById('customer-name').value = '';
+                        document.getElementById('customer-phone').value = '';
+                        tagCheckboxes.forEach(cb => { cb.checked = false; });
+                        updateSelectedTags();
+                    } else {
+                        alert('설정 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+                });
+                */
+            });
+        });
+    </script>
+</body>
+</html>
