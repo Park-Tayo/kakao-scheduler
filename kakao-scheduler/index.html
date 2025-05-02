@@ -660,11 +660,10 @@
                 
                 // 데이터 확인 (개발 중에만 사용)
                 console.log('전송 데이터:', data);
-                alert('메시지 스케줄링이 설정되었습니다.');
-                
-                // 실제 웹훅으로 데이터 전송 (주석 처리됨)
-                /*
-                fetch('YOUR_WEBHOOK_URL_HERE', {
+                // alert('메시지 스케줄링이 설정되었습니다.'); // 이 줄은 주석 처리
+
+                // 실제 웹훅으로 데이터 전송 (주석 해제)
+                fetch('https://hook.eu2.make.com/5wcopw4dk9qicua9uxv8oeo3okucndmi', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -687,7 +686,6 @@
                     console.error('Error:', error);
                     alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
                 });
-                */
             });
 
             // 새로고침 버튼 클릭 이벤트
