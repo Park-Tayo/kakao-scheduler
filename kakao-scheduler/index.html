@@ -457,11 +457,13 @@
         
         <!-- 고객 정보 입력 섹션 -->
         <div class="card">
-            <h2 class="card-title card-title-center"><i class="fas fa-user"></i> 고객 정보</h2>
+            <h2 class="card-title">
+                <i class="fas fa-user"></i> 고객 정보
+            </h2>
             <div class="grid grid-cols-2">
                 <div class="form-group">
                     <label class="form-label" for="customer-name">고객명</label>
-                    <input type="text" id="customer-name" class="form-control" placeholder="고객 이름을 입력하세요" required>
+                    <input type="text" id="customer-name" class="form-control" placeholder="고객 이름(생년월일)을 입력하세요 (예: 홍길동(910101))" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="customer-phone">연락처</label>
@@ -552,7 +554,9 @@
         
         <!-- 선택된 메시지 및 날짜 설정 -->
         <div class="card selected-tags-section">
-            <h2 class="selected-tags-title"><i class="fas fa-calendar-check"></i> 선택된 메시지 및 발송 날짜</h2>
+            <h2 class="card-title">
+                <i class="fas fa-calendar-check"></i> 선택된 메시지 및 발송 날짜
+            </h2>
             
             <div id="selected-tags-container">
                 <div class="no-tags-message">
